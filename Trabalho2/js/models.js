@@ -126,10 +126,10 @@ class Assinatura {
         this.ID_Assinatura = id;
         this.ID_Usuario = id_usuario;
         this.ID_Plano = id_plano;
-        
+
         const inicio = new Date();
         this.DataInicio = inicio.toISOString();
-        
+
         const fim = new Date(inicio);
         fim.setMonth(fim.getMonth() + duracaoMeses);
         this.DataFim = fim.toISOString();
@@ -170,7 +170,7 @@ class Database {
     generateId(array) {
         return array.length > 0 ? array[array.length - 1].ID_Usuario || array[array.length - 1].ID_Categoria || array.length + 1 : 1;
     }
-    
+
     // Auto-increment genérico
     nextId(tableName) {
         return this[tableName].length + 1;
@@ -191,14 +191,53 @@ db.categorias.push(new Categoria(2, "Frontend", "Desenvolvimento de interfaces e
 // Seed de Cursos Relacionados
 db.cursos.push(new Curso(1, "Masterclass de JavaScript Backend", "Aprenda Node.js, Express e arquitetura de microsserviços.", 1, 1, "Avançado", 10, 40));
 db.cursos.push(new Curso(2, "Dominando ES6+ e Frontend Vanilla", "Crie aplicações sem frameworks com foco em performance.", 1, 2, "Intermediário", 5, 20));
+db.cursos.push(new Curso(3, "React Ninja: Do Zero ao Profissional", "Construa SPA dinâmicas com a biblioteca mais popular do mercado.", 1, 2, "Avançado", 8, 30));
+db.cursos.push(new Curso(4, "Python para Engenharia de Dados", "Básico de Python e introdução à manipulação de grandes volumes de dados.", 1, 1, "Iniciante", 6, 15));
+db.cursos.push(new Curso(5, "DevOps e Docker Essencial", "Containerize suas aplicações e faça deploys fáceis com Docker.", 1, 1, "Intermediário", 7, 25));
+db.cursos.push(new Curso(6, "Golang de Alta Performance", "Aprenda a linguagem do Google construída para concorrência e velocidade.", 1, 1, "Avançado", 5, 20));
 
-// Seed de Módulos (Para o curso JS Backend)
+// Seed de Módulos
+// Curso 1
 db.modulos.push(new Modulo(1, 1, "Introdução ao Node.js", 1));
 db.modulos.push(new Modulo(2, 1, "Criando a primeira API", 2));
+// Curso 2
+db.modulos.push(new Modulo(3, 2, "Fundamentos do ES6+", 1));
+// Curso 3
+db.modulos.push(new Modulo(4, 3, "Fundamentos do React", 1));
+// Curso 4
+db.modulos.push(new Modulo(5, 4, "Sintaxe Python Moderna", 1));
+// Curso 5
+db.modulos.push(new Modulo(6, 5, "Containers e Docker", 1));
+// Curso 6
+db.modulos.push(new Modulo(7, 6, "Iniciando com Go", 1));
 
 // Seed de Aulas
-db.aulas.push(new Aula(1, 1, "O que é Node.js?", "Vídeo", "https://video.url", 15, 1));
-db.aulas.push(new Aula(2, 1, "Configurando o ambiente", "Texto", "https://texto.url", 10, 2));
+// Curso 1 (Node/JS Backend)
+db.aulas.push(new Aula(1, 1, "O que é Node.js?", "Vídeo", "hil4PMek7ms", 15, 1));
+db.aulas.push(new Aula(2, 1, "Configurando o ambiente", "Vídeo", "vf2vG07leiA", 10, 2));
+db.aulas.push(new Aula(3, 2, "Conceitos de API REST", "Vídeo", "zsjvFFKOm3c", 20, 1));
+
+// Curso 2 (ES6+ Vanilla)
+db.aulas.push(new Aula(4, 3, "Por que focar no Vanilla?", "Vídeo", "Dwb5DuSvDNU", 15, 1));
+db.aulas.push(new Aula(5, 3, "Desmistificando Promises", "Vídeo", "RvYYCGs45L4", 25, 2));
+
+// Curso 3 (React Ninja)
+db.aulas.push(new Aula(6, 4, "Introdução ao React", "Vídeo", "Tn6-PIqc4UM", 15, 1));
+db.aulas.push(new Aula(7, 4, "Componentes e Props", "Vídeo", "MJhQvSQXzCA", 20, 2));
+db.aulas.push(new Aula(8, 4, "Virtual DOM na prática", "Vídeo", "PVxISmtB_nQ", 18, 3));
+
+// Curso 4 (Python Dados)
+db.aulas.push(new Aula(9, 5, "Python em alta velocidade", "Vídeo", "kNdIA-L8E3c", 12, 1));
+db.aulas.push(new Aula(10, 5, "Estruturas de Dados Essenciais", "Vídeo", "VchuKL44s6E", 25, 2));
+
+// Curso 5 (DevOps e Docker)
+db.aulas.push(new Aula(11, 6, "A revolução do Docker", "Vídeo", "PiKncENmdCg", 15, 1));
+db.aulas.push(new Aula(12, 6, "Criando seu primeiro Container", "Vídeo", "eGz9DS-aIeY", 30, 2));
+db.aulas.push(new Aula(13, 6, "Orquestração Básica", "Vídeo", "X48VuDVv0do", 20, 3));
+
+// Curso 6 (Golang)
+db.aulas.push(new Aula(14, 7, "Conhecendo a Linguagem Go", "Vídeo", "nPAo0F0kvZU", 10, 1));
+db.aulas.push(new Aula(15, 7, "Concorrência com Goroutines", "Vídeo", "f6kdp27TYZs", 18, 2));
 
 // Seed de Planos
 db.planos.push(new Plano(1, "Plano Starter", "Acesso aos cursos básicos.", 29.90, 1));

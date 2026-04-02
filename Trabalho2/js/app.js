@@ -2,6 +2,8 @@
 
 const app = {
     currentUser: 2, // ID do Aluno Simulado (ver models.js)
+    currentPlayingAula: null,
+    currentPlayingCourseId: null,
 
     init() {
         // Pré-matricular o aluno Simulado no Curso 1 para testes
@@ -178,7 +180,7 @@ const app = {
                         </div>
 
                         <div class="mt-4 d-flex gap-2">
-                            <button class="btn btn-sm btn-primary flex-grow-1" onclick="app.simularAssistirAula(${curso.ID_Curso})">Anotar Aula (+ Progresso)</button>
+                            <button class="btn btn-sm btn-primary flex-grow-1" onclick="app.playNextAula(${curso.ID_Curso})"><i class="bi bi-play-circle me-1"></i> Assistir Próxima Aula</button>
                             <button class="btn btn-sm ${certClass}" ${percent === 100 ? `onclick="app.emitirCertificado(${curso.ID_Curso})"` : ''} title="Emissão liberada em 100%">
                                 <i class="bi bi-award"></i> Emite Certificado
                             </button>
@@ -191,7 +193,7 @@ const app = {
         document.getElementById('student-content-area').innerHTML = html;
     },
 
-    simularAssistirAula(courseId) {
+    playNextAula(courseId) {
         // Encontra a primeira aula não concluída deste curso
         let proximaAula = null;
         for (let mod of db.modulos.filter(m => m.ID_Curso === courseId)) {
@@ -205,11 +207,58 @@ const app = {
         }
 
         if (proximaAula) {
-            db.progressos.push(new ProgressoAula(this.currentUser, proximaAula.ID_Aula));
-            alert(`✅ Aula "${proximaAula.Titulo}" concluída com sucesso!`);
-            this.renderStudentCourses();
+            this.currentPlayingAula = proximaAula;
+            this.currentPlayingCourseId = courseId;
+            
+            // Set modal info
+            document.getElementById('videoModalLabel').innerText = `Assistindo: ${proximaAula.Titulo}`;
+            
+            // Show modal
+            const modalEl = document.getElementById('videoModal');
+            const modal = new bootstrap.Modal(modalEl);
+            modal.show();
+
+            // Handle Video Player loading
+            if (window.ytPlayer) {
+                window.ytPlayer.loadVideoById(proximaAula.URL_Conteudo);
+            } else {
+                window.ytPlayer = new YT.Player('youtube-player', {
+                    height: '100%',
+                    width: '100%',
+                    videoId: proximaAula.URL_Conteudo,
+                    playerVars: { 'autoplay': 1, 'controls': 1 },
+                    events: {
+                        'onStateChange': app.onPlayerStateChange
+                    }
+                });
+            }
         } else {
             alert("👏 Você já concluiu todas as aulas deste curso!");
+        }
+    },
+
+    onPlayerStateChange(event) {
+        // When video ends (YT.PlayerState.ENDED is 0)
+        if (event.data === YT.PlayerState.ENDED) {
+            // Register completion
+            db.progressos.push(new ProgressoAula(app.currentUser, app.currentPlayingAula.ID_Aula));
+            alert(`✅ Aula "${app.currentPlayingAula.Titulo}" concluída com sucesso!`);
+            
+            app.renderStudentCourses(); // Update UI
+            
+            // Close the modal
+            app.closeVideoModal(true);
+        }
+    },
+
+    closeVideoModal(autoClosed = false) {
+        const modalEl = document.getElementById('videoModal');
+        const modal = bootstrap.Modal.getInstance(modalEl);
+        if (modal) {
+            modal.hide();
+        }
+        if (window.ytPlayer) {
+            window.ytPlayer.stopVideo();
         }
     },
 
@@ -298,6 +347,14 @@ const app = {
             // 2. Registra Pagamento
             const pagamento = new Pagamento(db.nextId('pagamentos'), idAssinatura, app.selectedPlan.Preco, method);
             db.pagamentos.push(pagamento);
+
+            // 3. Libera Todos os Cursos
+            db.cursos.forEach(curso => {
+                const isEnrolled = db.matriculas.find(m => m.ID_Usuario === this.currentUser && m.ID_Curso === curso.ID_Curso);
+                if (!isEnrolled) {
+                    db.matriculas.push(new Matricula(db.nextId('matriculas'), this.currentUser, curso.ID_Curso));
+                }
+            });
 
             alert(`✅ Sucesso! Pagamento via ${method} aprovado.\nTransação: ${pagamento.Id_Transacao_Gateway}\nAssinatura liberada!`);
             
