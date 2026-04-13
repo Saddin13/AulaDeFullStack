@@ -7,6 +7,15 @@ Projeto desenvolvido para a disciplina da faculdade com foco em:
 - manipulacao dinamica com JavaScript (ES6+)
 - simulacao de persistencia em memoria
 
+# USUARIOS PRE PROGRAMADOS
+Admin
+  - usuario:00001
+  - senha:12345
+
+Aluno (gerado para teste)
+  - usuario:00002
+  - senha:12345
+
 ## Sobre o projeto
 
 Esta aplicacao simula uma plataforma de cursos online com modulos academico, de conteudo, usuarios/progresso e financeiro.
