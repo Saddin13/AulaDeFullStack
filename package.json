@@ -1,0 +1,12 @@
+{
+  "name": "codemaster-plataforma",
+  "version": "1.0.0",
+  "description": "Plataforma de cursos MVC",
+  "main": "main.mjs",
+  "type": "module",
+  "scripts": {
+    "start": "node main.mjs"
+  },
+  "author": "CodeMaster",
+  "license": "ISC"
+}
