@@ -33,6 +33,14 @@ export class MainController {
                 const el = e.target.closest('[data-view]');
                 if (el) this.navigate(el.dataset.view);
             }
+
+            if (e.target.closest('.student-tab-btn')) {
+                e.preventDefault();
+                const tabBtn = e.target.closest('.student-tab-btn');
+                document.querySelectorAll('.student-tab-btn').forEach(b => b.classList.remove('active'));
+                tabBtn.classList.add('active');
+                AlunoController.studentNavigateTabs(tabBtn.dataset.tab);
+            }
         });
     }
 
@@ -47,6 +55,12 @@ export class MainController {
         document.querySelectorAll('.view-section').forEach(sec => sec.classList.add('d-none'));
         const targetView = document.getElementById(`view-${viewId}`);
         if(targetView) targetView.classList.remove('d-none');
+
+        // Atualizar estilos visuais de Active Links (underlines do Header)
+        document.querySelectorAll('.nav-view-link').forEach(link => {
+            if (link.dataset.view === viewId) link.classList.add('active');
+            else link.classList.remove('active');
+        });
 
         // Lógica Específica
         if (viewId === 'store') LojaController.init();
