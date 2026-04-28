@@ -1,10 +1,11 @@
 export class Curso {
-    constructor({ id, titulo, descricao, id_instrutor, id_categoria, nivel, totalAulas, totalHoras, preco }) {
+    constructor({ id, titulo, descricao, id_instrutor, id_categoria, id_trilha, nivel, totalAulas, totalHoras, preco }) {
         this.ID_Curso = id;
         this.Titulo = titulo;
         this.Descricao = descricao;
         this.ID_Instrutor = id_instrutor;
         this.ID_Categoria = id_categoria;
+        this.ID_Trilha = id_trilha || null;
         this.Nivel = nivel;
         this.DataPublicacao = new Date().toISOString();
         this.TotalAulas = totalAulas;
