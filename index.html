@@ -42,15 +42,11 @@
         <section id="view-home" class="view-section active py-3">
             <div class="row align-items-center mb-5 hero-section-modern">
                 <div class="col-lg-7 text-center text-lg-start pe-lg-5">
-                    <div class="d-inline-flex align-items-center bg-white shadow-sm rounded-pill px-3 py-2 mb-4 border border-warning">
-                        <span class="badge bg-warning text-dark rounded-pill me-2">Versão 2.4</span>
-                        <span class="small fw-semibold text-dark">Arquitetura MVC implementada!</span>
-                    </div>
                     <h1 class="display-3 fw-bolder mb-3 text-dark lh-sm">
-                        Domine a <span class="text-gradient">Programação</span><br>na Prática.
+                        Aprenda a Programar <span class="text-gradient">na Prática.</span>
                     </h1>
                     <p class="lead text-muted mb-4 fw-normal" style="max-width: 90%;">
-                        Uma plataforma que simula ecossistemas reais. Desenvolva as tecnologias mais exigidas pelo mercado hoje comprando estritamente os cursos que julgar necessários.
+                        O seu proximo passo na programação!
                     </p>
                     <div class="d-flex flex-wrap justify-content-center justify-content-lg-start gap-3 mt-4">
                         <button class="btn btn-primary btn-lg px-5 py-3 rounded-pill shadow-lg d-flex align-items-center gap-2 hero-btn"
@@ -64,10 +60,6 @@
                              <div class="icon-circle bg-success-subtle text-success"><i class="bi bi-check-lg"></i></div>
                              <span class="fw-medium small text-dark">Acesso Vitalício Garantido</span>
                         </div>
-                        <div class="d-flex align-items-center gap-2">
-                             <div class="icon-circle bg-primary-subtle text-primary"><i class="bi bi-shield-lock"></i></div>
-                             <span class="fw-medium small text-dark">Persistência MVC Local</span>
-                        </div>
                     </div>
                 </div>
                 <div class="col-lg-5 mt-5 mt-lg-0">
@@ -80,42 +72,6 @@
                                 <h3 class="fw-bold mt-3">CodeMaster</h3>
                                 <p class="text-light opacity-75 mb-0">Evolução Constante.</p>
                             </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="row g-4 mt-5">
-                <div class="col-md-4">
-                    <div class="card h-100 border-0 shadow-sm feature-card rounded-4 p-3 bg-white">
-                        <div class="card-body">
-                            <div class="feature-icon bg-info-subtle text-info mb-3 rounded-3 d-inline-flex p-3 align-items-center justify-content-center" style="width: 60px; height: 60px;">
-                                <i class="bi bi-display fs-3"></i>
-                            </div>
-                            <h5 class="fw-bold">Aprendizado Avulso</h5>
-                            <p class="text-muted small">Adquira pontualmente o conteúdo que preenche suas lacunas. Fique longe das velhas sinaturas mensais.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card h-100 border-0 shadow-sm feature-card rounded-4 p-3 bg-white">
-                        <div class="card-body">
-                            <div class="feature-icon bg-success-subtle text-success mb-3 rounded-3 d-inline-flex p-3 align-items-center justify-content-center" style="width: 60px; height: 60px;">
-                                <i class="bi bi-database-fill-check fs-3"></i>
-                            </div>
-                            <h5 class="fw-bold">Ambiente MVC Simulado</h5>
-                            <p class="text-muted small">Sua jornada, progresso, e dados rodam com segurança por meio de armazenamento estrito no seu navegador.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card h-100 border-0 shadow-sm feature-card rounded-4 p-3 bg-white">
-                        <div class="card-body">
-                            <div class="feature-icon bg-danger-subtle text-danger mb-3 rounded-3 d-inline-flex p-3 align-items-center justify-content-center" style="width: 60px; height: 60px;">
-                                <i class="bi bi-person-badge fs-3"></i>
-                            </div>
-                            <h5 class="fw-bold">Gestão Completa</h5>
-                            <p class="text-muted small">A infraestrutura permite um Painel Admin onde os professores manipulam ativamente cada aluno ou compra.</p>
                         </div>
                     </div>
                 </div>
@@ -140,6 +96,10 @@
                     <a class="nav-link rounded-pill px-4 student-tab-btn pointer" href="#"
                         data-tab="certificates">Meus Certificados</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link rounded-pill px-4 student-tab-btn pointer" href="#"
+                        data-tab="mytrails">Minhas Trilhas</a>
+                </li>
             </ul>
 
             <div id="student-content-area" class="mt-4">
@@ -156,6 +116,15 @@
 
             <div class="row justify-content-center mb-5" id="store-container">
                 <!-- Cursos injetados por views.js -->
+            </div>
+
+            <div class="text-center mb-5 mt-5">
+                <h2 class="fw-bold display-5">Nossas Trilhas</h2>
+                <p class="lead text-muted">Adquira um pacote completo de cursos focados em um objetivo com 10% de desconto!</p>
+            </div>
+
+            <div class="row justify-content-center mb-5" id="store-trilhas-container">
+                <!-- Trilhas injetadas por views.js -->
             </div>
         </section>
 

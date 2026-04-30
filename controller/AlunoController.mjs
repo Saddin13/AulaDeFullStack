@@ -1,10 +1,12 @@
 import { ProgressoService } from '../service/ProgressoService.mjs';
 import { CursoService } from '../service/CursoService.mjs';
+import { TrilhaService } from '../service/TrilhaService.mjs';
 import { StudentView } from '../view/StudentView.mjs';
 import { MainController } from './MainController.mjs';
 
 const progressoSvc = new ProgressoService();
 const cursoSvc = new CursoService();
+const trilhaSvc = new TrilhaService();
 
 export class AlunoController {
     static currentUser = null;
@@ -19,6 +21,7 @@ export class AlunoController {
     static studentNavigateTabs(tabName) {
         if (tabName === 'mycourses') this.loadMyCourses();
         if (tabName === 'certificates') this.loadMyCertificates();
+        if (tabName === 'mytrails') this.loadMyTrails();
     }
 
     static loadMyCourses() {
@@ -154,5 +157,100 @@ export class AlunoController {
         }
         html += `</div>`;
         StudentView.renderCertificates(html);
+    }
+
+    static loadMyTrails() {
+        const myEnrollments = progressoSvc.listarMatriculas(this.currentUser.ID_Usuario);
+        if (myEnrollments.length === 0) {
+            StudentView.renderCourses(`<div class="alert alert-warning">Você não possui trilhas ativas. Conheça nossas trilhas na loja!</div>`);
+            return;
+        }
+
+        const enrolledCourseIds = myEnrollments.map(m => m.ID_Curso);
+        const trilhas = trilhaSvc.listar();
+        const myTrailsHtml = [];
+
+        trilhas.forEach(trilha => {
+            const cursosDaTrilha = cursoSvc.listar().filter(c => c.ID_Trilha == trilha.ID_Trilha);
+            if (cursosDaTrilha.length === 0) return;
+
+            // Se o usuario tem pelo menos um curso dessa trilha
+            const hasCourseInTrail = cursosDaTrilha.some(c => enrolledCourseIds.includes(c.ID_Curso));
+            if (!hasCourseInTrail) return;
+
+            let totalAulasTrilha = 0;
+            let concluidasTrilha = 0;
+            let proximoCurso = null;
+
+            cursosDaTrilha.forEach(curso => {
+                let cursoAulas = 0;
+                let cursoConcluidas = 0;
+
+                cursoSvc.obterModulos(curso.ID_Curso).forEach(mod => {
+                    const aulasModulo = cursoSvc.obterAulas(mod.ID_Modulo);
+                    cursoAulas += aulasModulo.length;
+                    aulasModulo.forEach(aula => {
+                        if (progressoSvc.verificarProgressoFezAula(this.currentUser.ID_Usuario, aula.ID_Aula)) {
+                            cursoConcluidas++;
+                        }
+                    });
+                });
+
+                totalAulasTrilha += cursoAulas;
+                concluidasTrilha += cursoConcluidas;
+
+                if (!proximoCurso && enrolledCourseIds.includes(curso.ID_Curso)) {
+                    if (cursoAulas === 0 || cursoConcluidas < cursoAulas) {
+                        proximoCurso = curso;
+                    }
+                }
+            });
+
+            const percent = totalAulasTrilha > 0 ? Math.round((concluidasTrilha / totalAulasTrilha) * 100) : 0;
+
+            myTrailsHtml.push(`
+            <div class="col-md-6">
+                <div class="card h-100 border-0 shadow-sm glass-card">
+                    <div class="card-body">
+                        <span class="badge bg-primary text-light mb-2">Trilha</span>
+                        <h5 class="fw-bold">${trilha.Nome}</h5>
+                        <p class="text-muted small">${trilha.Descricao}</p>
+                        
+                        <div class="mt-4">
+                            <div class="d-flex justify-content-between small text-muted mb-1">
+                                <span>Progresso Geral</span>
+                                <span>${percent}%</span>
+                            </div>
+                            <div class="progress" style="height: 6px;">
+                                <div class="progress-bar bg-success" role="progressbar" style="width: ${percent}%;"></div>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 text-center">
+                            <p class="mb-3 fw-bold"><i class="bi bi-collection"></i> ${cursosDaTrilha.length} Curso(s)</p>
+                            ${proximoCurso ? `
+                                <div class="alert alert-info py-2 mb-0 text-start shadow-sm border-0">
+                                    <small class="fw-bold d-block text-primary mb-1">Próximo Curso:</small>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="text-truncate fw-medium text-dark" style="max-width: 65%; font-size: 0.9rem;">${proximoCurso.Titulo}</span>
+                                        <button class="btn btn-sm btn-primary rounded-pill px-3" onclick="window.AlunoController.playNextAula(${proximoCurso.ID_Curso})">Assistir</button>
+                                    </div>
+                                </div>
+                            ` : `
+                                <div class="alert alert-success py-2 mb-0 border-0">
+                                    <small class="fw-bold"><i class="bi bi-check-circle"></i> Todos os cursos concluídos!</small>
+                                </div>
+                            `}
+                        </div>
+                    </div>
+                </div>
+            </div>`);
+        });
+
+        if (myTrailsHtml.length === 0) {
+            StudentView.renderCourses(`<div class="alert alert-info">Você ainda não está inscrito em nenhuma Trilha.</div>`);
+        } else {
+            StudentView.renderCourses(`<div class="row g-4">${myTrailsHtml.join('')}</div>`);
+        }
     }
 }

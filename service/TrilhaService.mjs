@@ -20,4 +20,8 @@ export class TrilhaService {
         dbService.save();
         return novaTrilha;
     }
+
+    buscarPorId(id) {
+        return this.listar().find(t => t.ID_Trilha === Number(id)) ?? null;
+    }
 }

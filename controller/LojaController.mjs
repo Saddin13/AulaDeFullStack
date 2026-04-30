@@ -3,26 +3,69 @@ import { StoreView } from '../view/StoreView.mjs';
 import { MainController } from './MainController.mjs';
 import { UsuarioService } from '../service/UsuarioService.mjs';
 import { ProgressoService } from '../service/ProgressoService.mjs';
+import { TrilhaService } from '../service/TrilhaService.mjs';
 
 const cursoSvc = new CursoService();
 const usuarioSvc = new UsuarioService();
 const progressoSvc = new ProgressoService();
+const trilhaSvc = new TrilhaService();
 
 export class LojaController {
     static selectedCourse = null;
+    static selectedTrilha = null;
+    static precoTrilha = 0;
     static pendingUserId = null;
 
     static init() {
-        StoreView.render(cursoSvc.listar());
+        const cursos = cursoSvc.listar();
+        StoreView.render(cursos);
+        
+        const trilhas = trilhaSvc.listar();
+        const trilhaPrecos = {};
+        const trilhaCursosCount = {};
+        
+        trilhas.forEach(t => {
+            const cursosDaTrilha = cursos.filter(c => c.ID_Trilha == t.ID_Trilha);
+            const somaCursos = cursosDaTrilha.reduce((sum, c) => sum + c.Preco, 0);
+            trilhaPrecos[t.ID_Trilha] = somaCursos * 0.9;
+            trilhaCursosCount[t.ID_Trilha] = cursosDaTrilha.length;
+        });
+        
+        StoreView.renderTrilhas(trilhas, trilhaPrecos, trilhaCursosCount);
     }
 
     static prepararCheckout(cursoId) {
         this.selectedCourse = cursoSvc.buscarPorId(cursoId);
+        this.selectedTrilha = null;
         
         document.querySelectorAll('.view-section').forEach(sec => sec.classList.add('d-none'));
         document.getElementById('view-checkout').classList.remove('d-none');
         
         const detailsLog = `Comprando: <b>${this.selectedCourse.Titulo}</b> por R$ ${this.selectedCourse.Preco.toFixed(2).replace('.',',')}`;
+
+        if (MainController.currentUser) {
+            document.getElementById('checkout-logged').classList.remove('d-none');
+            document.getElementById('checkout-public').classList.add('d-none');
+            document.getElementById('checkout-plan-info-logged').innerHTML = detailsLog;
+        } else {
+            document.getElementById('checkout-public').classList.remove('d-none');
+            document.getElementById('checkout-logged').classList.add('d-none');
+            document.getElementById('checkout-plan-info-public').innerHTML = detailsLog;
+        }
+    }
+
+    static prepararCheckoutTrilha(trilhaId) {
+        this.selectedTrilha = trilhaSvc.buscarPorId(trilhaId);
+        this.selectedCourse = null;
+        
+        const cursosDaTrilha = cursoSvc.listar().filter(c => c.ID_Trilha == trilhaId);
+        const somaCursos = cursosDaTrilha.reduce((sum, c) => sum + c.Preco, 0);
+        this.precoTrilha = somaCursos * 0.9;
+        
+        document.querySelectorAll('.view-section').forEach(sec => sec.classList.add('d-none'));
+        document.getElementById('view-checkout').classList.remove('d-none');
+        
+        const detailsLog = `Comprando Trilha: <b>${this.selectedTrilha.Nome}</b> por R$ ${this.precoTrilha.toFixed(2).replace('.',',')}`;
 
         if (MainController.currentUser) {
             document.getElementById('checkout-logged').classList.remove('d-none');
@@ -41,7 +84,13 @@ export class LojaController {
         
         try {
             const novoUser = usuarioSvc.salvar({ nomeCompleto: nome, email, senhaHash: "12345", isAdmin: false });
-            progressoSvc.matricular(novoUser.ID_Usuario, this.selectedCourse.ID_Curso, this.selectedCourse.Preco);
+            
+            if (this.selectedCourse) {
+                progressoSvc.matricular(novoUser.ID_Usuario, this.selectedCourse.ID_Curso, this.selectedCourse.Preco);
+            } else if (this.selectedTrilha) {
+                const cursosDaTrilha = cursoSvc.listar().filter(c => c.ID_Trilha == this.selectedTrilha.ID_Trilha);
+                cursosDaTrilha.forEach(c => progressoSvc.matricular(novoUser.ID_Usuario, c.ID_Curso, c.Preco * 0.9));
+            }
             
             form.reset();
             this.pendingUserId = novoUser.ID_Usuario;
@@ -82,8 +131,17 @@ export class LojaController {
 
     static handleLoggedCoursePurchase() {
         try {
-            progressoSvc.matricular(MainController.currentUser.ID_Usuario, this.selectedCourse.ID_Curso, this.selectedCourse.Preco);
-            alert(`✅ Compra do curso "${this.selectedCourse.Titulo}" aprovada com sucesso!`);
+            if (this.selectedCourse) {
+                progressoSvc.matricular(MainController.currentUser.ID_Usuario, this.selectedCourse.ID_Curso, this.selectedCourse.Preco);
+                alert(`✅ Compra do curso "${this.selectedCourse.Titulo}" aprovada com sucesso!`);
+            } else if (this.selectedTrilha) {
+                const cursosDaTrilha = cursoSvc.listar().filter(c => c.ID_Trilha == this.selectedTrilha.ID_Trilha);
+                cursosDaTrilha.forEach(c => {
+                    // Ignora erro se já estiver matriculado num curso da trilha
+                    try { progressoSvc.matricular(MainController.currentUser.ID_Usuario, c.ID_Curso, c.Preco * 0.9); } catch(e) {}
+                });
+                alert(`✅ Compra da Trilha "${this.selectedTrilha.Nome}" aprovada com sucesso!`);
+            }
             MainController.navigate('student');
         } catch(e) {
             alert(e.message);
